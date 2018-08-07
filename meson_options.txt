@@ -1,0 +1,7 @@
+option('ftp', type: 'feature', value: 'disabled', description: 'Add FTP support')
+option('history', type: 'feature', value: 'disabled', description: 'Add history support to xmllint shell')
+option('http', type: 'feature', value: 'auto', description: 'Add HTTP support')
+option('legacy', type: 'feature', value: 'disabled', description: 'Add deprecated APIs for compatibility')
+option('lzma', type: 'feature', value: 'auto', description: 'Add lzma compression support')
+option('sax1', type: 'feature', value: 'enabled', description: 'Deprecated APIs: add the older SAX1 interface')
+option('zlib', type: 'feature', value: 'auto', description: 'Add zlib compression support')
