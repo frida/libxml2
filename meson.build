@@ -152,7 +152,7 @@ core_deps = [math_lib, iconv_lib, dl_lib, lzma_dep, thread_dep, zlib_dep]
 readline_deps = []
 
 readline_lib = cc.find_library('readline', required: false)
-if readline_lib.found()
+if readline_lib.found() and cc.has_header('readline/readline.h')
   cdata.set('HAVE_LIBREADLINE', 1)
   readline_deps += readline_lib
 endif
