@@ -42,7 +42,6 @@ ignored_files = {
   "testThreads.c": "test tool",
   "testC14N.c": "test tool",
   "testRelax.c": "test tool",
-  "testThreadsWin32.c": "test tool",
   "testSAX.c": "test tool",
   "testURI.c": "test tool",
   "testapi.c": "generated regression tests",
@@ -81,7 +80,7 @@ ignored_words = {
   "ATTRIBUTE_PRINTF": (5, "macro for gcc printf args checking extension"),
   "LIBXML_ATTR_FORMAT": (5, "macro for gcc printf args checking extension"),
   "LIBXML_ATTR_ALLOC_SIZE": (3, "macro for gcc checking extension"),
-  "__XML_EXTERNC": (0, "Special macro added for os400"),
+  "ATTRIBUTE_NO_SANITIZE": (3, "macro keyword"),
 }
 
 def escape(raw):
@@ -808,7 +807,7 @@ class CParser:
         return((args, desc))
 
      #
-     # Parse a comment block and merge the informations found in the
+     # Parse a comment block and merge the information found in the
      # parameters descriptions, finally returns a block as complete
      # as possible
      #
