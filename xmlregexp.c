@@ -273,6 +273,8 @@ struct _xmlAutomata {
     int determinist;
     int negs;
     int flags;
+
+    int depth;
 };
 
 struct _xmlRegexp {
@@ -2656,7 +2658,6 @@ xmlFARecurseDeterminism(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state,
 	    state->markd = XML_REGEXP_MARK_VISITED;
 	    res = xmlFARecurseDeterminism(ctxt, ctxt->states[t1->to],
 		                           to, atom);
-	    state->markd = 0;
 	    if (res == 0) {
 	        ret = 0;
 		/* t1->nd = 1; */
@@ -2672,6 +2673,30 @@ xmlFARecurseDeterminism(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state,
 	}
     }
     return(ret);
+}
+
+/**
+ * xmlFAFinishRecurseDeterminism:
+ * @ctxt:  a regexp parser context
+ *
+ * Reset flags after checking determinism.
+ */
+static void
+xmlFAFinishRecurseDeterminism(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state) {
+    int transnr, nbTrans;
+
+    if (state == NULL)
+	return;
+    if (state->markd != XML_REGEXP_MARK_VISITED)
+	return;
+    state->markd = 0;
+
+    nbTrans = state->nbTrans;
+    for (transnr = 0; transnr < nbTrans; transnr++) {
+	xmlRegTransPtr t1 = &state->trans[transnr];
+	if ((t1->atom == NULL) && (t1->to >= 0))
+	    xmlFAFinishRecurseDeterminism(ctxt, ctxt->states[t1->to]);
+    }
 }
 
 /**
@@ -2787,6 +2812,7 @@ xmlFAComputesDeterminism(xmlRegParserCtxtPtr ctxt) {
 		     */
 		    ret = xmlFARecurseDeterminism(ctxt, ctxt->states[t1->to],
 						   t2->to, t2->atom);
+                    xmlFAFinishRecurseDeterminism(ctxt, ctxt->states[t1->to]);
 		    /* don't shortcut the computation so all non deterministic
 		       transition get marked down
 		    if (ret == 0)
@@ -5129,7 +5155,7 @@ xmlFAParsePosCharGroup(xmlRegParserCtxtPtr ctxt) {
 	} else {
 	    xmlFAParseCharRange(ctxt);
 	}
-    } while ((CUR != ']') && (CUR != '^') && (CUR != '-') &&
+    } while ((CUR != ']') && (CUR != '-') &&
              (CUR != 0) && (ctxt->error == 0));
 }
 
@@ -5144,34 +5170,31 @@ xmlFAParsePosCharGroup(xmlRegParserCtxtPtr ctxt) {
  */
 static void
 xmlFAParseCharGroup(xmlRegParserCtxtPtr ctxt) {
-    int n = ctxt->neg;
-    while ((CUR != ']') && (ctxt->error == 0)) {
-	if (CUR == '^') {
-	    int neg = ctxt->neg;
+    int neg = ctxt->neg;
 
-	    NEXT;
-	    ctxt->neg = !ctxt->neg;
-	    xmlFAParsePosCharGroup(ctxt);
-	    ctxt->neg = neg;
-	} else if ((CUR == '-') && (NXT(1) == '[')) {
-	    int neg = ctxt->neg;
-	    ctxt->neg = 2;
+    if (CUR == '^') {
+	NEXT;
+	ctxt->neg = !ctxt->neg;
+	xmlFAParsePosCharGroup(ctxt);
+	ctxt->neg = neg;
+    }
+    while ((CUR != ']') && (ctxt->error == 0)) {
+	if ((CUR == '-') && (NXT(1) == '[')) {
 	    NEXT;	/* eat the '-' */
 	    NEXT;	/* eat the '[' */
+	    ctxt->neg = 2;
 	    xmlFAParseCharGroup(ctxt);
+	    ctxt->neg = neg;
 	    if (CUR == ']') {
 		NEXT;
 	    } else {
 		ERROR("charClassExpr: ']' expected");
-		break;
 	    }
-	    ctxt->neg = neg;
 	    break;
-	} else if (CUR != ']') {
+	} else {
 	    xmlFAParsePosCharGroup(ctxt);
 	}
     }
-    ctxt->neg = n;
 }
 
 /**
@@ -5211,13 +5234,24 @@ static int
 xmlFAParseQuantExact(xmlRegParserCtxtPtr ctxt) {
     int ret = 0;
     int ok = 0;
+    int overflow = 0;
 
     while ((CUR >= '0') && (CUR <= '9')) {
-	ret = ret * 10 + (CUR - '0');
+        if (ret > INT_MAX / 10) {
+            overflow = 1;
+        } else {
+            int digit = CUR - '0';
+
+            ret *= 10;
+            if (ret > INT_MAX - digit)
+                overflow = 1;
+            else
+                ret += digit;
+        }
 	ok = 1;
 	NEXT;
     }
-    if (ok != 1) {
+    if ((ok != 1) || (overflow == 1)) {
 	return(-1);
     }
     return(ret);
@@ -5257,6 +5291,9 @@ xmlFAParseQuantifier(xmlRegParserCtxtPtr ctxt) {
 	cur = xmlFAParseQuantExact(ctxt);
 	if (cur >= 0)
 	    min = cur;
+        else {
+            ERROR("Improper quantifier");
+        }
 	if (CUR == ',') {
 	    NEXT;
 	    if (CUR == '}')
@@ -5316,6 +5353,10 @@ xmlFAParseAtom(xmlRegParserCtxtPtr ctxt) {
 	xmlRegStatePtr start, oldend, start0;
 
 	NEXT;
+        if (ctxt->depth >= 50) {
+	    ERROR("xmlFAParseAtom: maximum nesting depth exceeded");
+            return(-1);
+        }
 	/*
 	 * this extra Epsilon transition is needed if we count with 0 allowed
 	 * unfortunately this can't be known at that point
@@ -5327,7 +5368,9 @@ xmlFAParseAtom(xmlRegParserCtxtPtr ctxt) {
 	oldend = ctxt->end;
 	ctxt->end = NULL;
 	ctxt->atom = NULL;
+        ctxt->depth++;
 	xmlFAParseRegExp(ctxt, 0);
+        ctxt->depth--;
 	if (CUR == ')') {
 	    NEXT;
 	} else {

@@ -6074,7 +6074,16 @@ xmlGetMaxOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNodePtr node,
 	return (def);
     }
     while ((*cur >= '0') && (*cur <= '9')) {
-        ret = ret * 10 + (*cur - '0');
+        if (ret > INT_MAX / 10) {
+            ret = INT_MAX;
+        } else {
+            int digit = *cur - '0';
+            ret *= 10;
+            if (ret > INT_MAX - digit)
+                ret = INT_MAX;
+            else
+                ret += digit;
+        }
         cur++;
     }
     while (IS_BLANK_CH(*cur))
@@ -6126,7 +6135,16 @@ xmlGetMinOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNodePtr node,
         return (def);
     }
     while ((*cur >= '0') && (*cur <= '9')) {
-        ret = ret * 10 + (*cur - '0');
+        if (ret > INT_MAX / 10) {
+            ret = INT_MAX;
+        } else {
+            int digit = *cur - '0';
+            ret *= 10;
+            if (ret > INT_MAX - digit)
+                ret = INT_MAX;
+            else
+                ret += digit;
+        }
         cur++;
     }
     while (IS_BLANK_CH(*cur))
@@ -27932,6 +27950,10 @@ xmlSchemaVDocWalk(xmlSchemaValidCtxtPtr vctxt)
 	/* VAL TODO: Error code? */
 	VERROR(1, NULL, "The document has no document element");
 	return (1);
+    }
+    for (node = valRoot->next; node != NULL; node = node->next) {
+        if (node->type == XML_ELEMENT_NODE)
+            VERROR(1, NULL, "The document has more than one top element");
     }
     vctxt->depth = -1;
     vctxt->validationRoot = valRoot;

@@ -1,333 +1,288 @@
-/* config.h.meson.  Generated from configure.ac by autoheader
-   and adapted for use in Meson. */
+/* config.h.  Generated from config.h.in by configure.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define if __attribute__((destructor)) is accepted */
+#cmakedefine ATTRIBUTE_DESTRUCTOR 1
 
 /* Type cast for the gethostbyname() argument */
-#mesondefine GETHOSTBYNAME_ARG_CAST
-
-/* Define to 1 if you have the <ansidecl.h> header file. */
-#mesondefine HAVE_ANSIDECL_H
+#cmakedefine GETHOSTBYNAME_ARG_CAST @GETHOSTBYNAME_ARG_CAST@
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
-#mesondefine HAVE_ARPA_INET_H
+#cmakedefine HAVE_ARPA_INET_H 1
 
 /* Define to 1 if you have the <arpa/nameser.h> header file. */
-#mesondefine HAVE_ARPA_NAMESER_H
+#cmakedefine HAVE_ARPA_NAMESER_H 1
 
 /* Whether struct sockaddr::__ss_family exists */
-#mesondefine HAVE_BROKEN_SS_FAMILY
-
-/* Define to 1 if you have the `class' function. */
-#mesondefine HAVE_CLASS
+#cmakedefine HAVE_BROKEN_SS_FAMILY 1
 
 /* Define to 1 if you have the <ctype.h> header file. */
-#mesondefine HAVE_CTYPE_H
+#cmakedefine HAVE_CTYPE_H 1
 
 /* Define to 1 if you have the <dirent.h> header file. */
-#mesondefine HAVE_DIRENT_H
+#cmakedefine HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#mesondefine HAVE_DLFCN_H
+#cmakedefine HAVE_DLFCN_H 1
 
 /* Have dlopen based dso */
-#mesondefine HAVE_DLOPEN
+#cmakedefine HAVE_DLOPEN 1
 
 /* Define to 1 if you have the <dl.h> header file. */
-#mesondefine HAVE_DL_H
+#cmakedefine HAVE_DL_H 1
 
 /* Define to 1 if you have the <errno.h> header file. */
-#mesondefine HAVE_ERRNO_H
+#cmakedefine HAVE_ERRNO_H 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
-#mesondefine HAVE_FCNTL_H
-
-/* Define to 1 if you have the `finite' function. */
-#mesondefine HAVE_FINITE
+#cmakedefine HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the <float.h> header file. */
-#mesondefine HAVE_FLOAT_H
-
-/* Define to 1 if you have the `fpclass' function. */
-#mesondefine HAVE_FPCLASS
+#cmakedefine HAVE_FLOAT_H 1
 
 /* Define to 1 if you have the `fprintf' function. */
-#mesondefine HAVE_FPRINTF
-
-/* Define to 1 if you have the `fp_class' function. */
-#mesondefine HAVE_FP_CLASS
-
-/* Define to 1 if you have the <fp_class.h> header file. */
-#mesondefine HAVE_FP_CLASS_H
+#cmakedefine HAVE_FPRINTF 1
 
 /* Define to 1 if you have the `ftime' function. */
-#mesondefine HAVE_FTIME
+#cmakedefine HAVE_FTIME 1
 
 /* Define if getaddrinfo is there */
-#mesondefine HAVE_GETADDRINFO
+#cmakedefine HAVE_GETADDRINFO 1
 
 /* Define to 1 if you have the `gettimeofday' function. */
-#mesondefine HAVE_GETTIMEOFDAY
-
-/* Define to 1 if you have the <ieeefp.h> header file. */
-#mesondefine HAVE_IEEEFP_H
+#cmakedefine HAVE_GETTIMEOFDAY 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#mesondefine HAVE_INTTYPES_H
+#cmakedefine HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `isascii' function. */
-#mesondefine HAVE_ISASCII
+#cmakedefine HAVE_ISASCII 1
 
 /* Define if isinf is there */
-#mesondefine HAVE_ISINF
+#cmakedefine HAVE_ISINF 1
 
 /* Define if isnan is there */
-#mesondefine HAVE_ISNAN
-
-/* Define to 1 if you have the `isnand' function. */
-#mesondefine HAVE_ISNAND
+#cmakedefine HAVE_ISNAN 1
 
 /* Define if history library is there (-lhistory) */
-#mesondefine HAVE_LIBHISTORY
-
-/* Have compression library */
-#mesondefine HAVE_LIBLZMA
+#cmakedefine HAVE_LIBHISTORY 1
 
 /* Define if pthread library is there (-lpthread) */
-#mesondefine HAVE_LIBPTHREAD
+#cmakedefine HAVE_LIBPTHREAD 1
 
 /* Define if readline library is there (-lreadline) */
-#mesondefine HAVE_LIBREADLINE
-
-/* Have compression library */
-#mesondefine HAVE_LIBZ
+#cmakedefine HAVE_LIBREADLINE 1
 
 /* Define to 1 if you have the <limits.h> header file. */
-#mesondefine HAVE_LIMITS_H
+#cmakedefine HAVE_LIMITS_H 1
 
 /* Define to 1 if you have the `localtime' function. */
-#mesondefine HAVE_LOCALTIME
+#cmakedefine HAVE_LOCALTIME 1
 
 /* Define to 1 if you have the <lzma.h> header file. */
-#mesondefine HAVE_LZMA_H
+#cmakedefine HAVE_LZMA_H 1
 
 /* Define to 1 if you have the <malloc.h> header file. */
-#mesondefine HAVE_MALLOC_H
+#cmakedefine HAVE_MALLOC_H 1
 
 /* Define to 1 if you have the <math.h> header file. */
-#mesondefine HAVE_MATH_H
+#cmakedefine HAVE_MATH_H 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-#mesondefine HAVE_MEMORY_H
+#cmakedefine HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `mmap' function. */
-#mesondefine HAVE_MMAP
+#cmakedefine HAVE_MMAP 1
 
 /* Define to 1 if you have the `munmap' function. */
-#mesondefine HAVE_MUNMAP
+#cmakedefine HAVE_MUNMAP 1
 
 /* mmap() is no good without munmap() */
 #if defined(HAVE_MMAP) && !defined(HAVE_MUNMAP)
 #  undef /**/ HAVE_MMAP
 #endif
 
-/* Define to 1 if you have the <nan.h> header file. */
-#mesondefine HAVE_NAN_H
-
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
-#mesondefine HAVE_NDIR_H
+#cmakedefine HAVE_NDIR_H 1
 
 /* Define to 1 if you have the <netdb.h> header file. */
-#mesondefine HAVE_NETDB_H
+#cmakedefine HAVE_NETDB_H 1
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
-#mesondefine HAVE_NETINET_IN_H
+#cmakedefine HAVE_NETINET_IN_H 1
 
 /* Define to 1 if you have the <poll.h> header file. */
-#mesondefine HAVE_POLL_H
+#cmakedefine HAVE_POLL_H 1
 
 /* Define to 1 if you have the `printf' function. */
-#mesondefine HAVE_PRINTF
+#cmakedefine HAVE_PRINTF 1
 
 /* Define if <pthread.h> is there */
-#mesondefine HAVE_PTHREAD_H
+#cmakedefine HAVE_PTHREAD_H 1
 
 /* Define to 1 if you have the `putenv' function. */
-#mesondefine HAVE_PUTENV
+#cmakedefine HAVE_PUTENV 1
 
 /* Define to 1 if you have the `rand' function. */
-#mesondefine HAVE_RAND
+#cmakedefine HAVE_RAND 1
 
 /* Define to 1 if you have the `rand_r' function. */
-#mesondefine HAVE_RAND_R
+#cmakedefine HAVE_RAND_R 1
 
 /* Define to 1 if you have the <resolv.h> header file. */
-#mesondefine HAVE_RESOLV_H
+#cmakedefine HAVE_RESOLV_H 1
 
 /* Have shl_load based dso */
-#mesondefine HAVE_SHLLOAD
+#cmakedefine HAVE_SHLLOAD 1
 
 /* Define to 1 if you have the `signal' function. */
-#mesondefine HAVE_SIGNAL
+#cmakedefine HAVE_SIGNAL 1
 
 /* Define to 1 if you have the <signal.h> header file. */
-#mesondefine HAVE_SIGNAL_H
+#cmakedefine HAVE_SIGNAL_H 1
 
 /* Define to 1 if you have the `snprintf' function. */
-#mesondefine HAVE_SNPRINTF
+#cmakedefine HAVE_SNPRINTF 1
 
 /* Define to 1 if you have the `sprintf' function. */
-#mesondefine HAVE_SPRINTF
+#cmakedefine HAVE_SPRINTF 1
 
 /* Define to 1 if you have the `srand' function. */
-#mesondefine HAVE_SRAND
+#cmakedefine HAVE_SRAND 1
 
 /* Define to 1 if you have the `sscanf' function. */
-#mesondefine HAVE_SSCANF
+#cmakedefine HAVE_SSCANF 1
 
 /* Define to 1 if you have the `stat' function. */
-#mesondefine HAVE_STAT
+#cmakedefine HAVE_STAT 1
 
 /* Define to 1 if you have the <stdarg.h> header file. */
-#mesondefine HAVE_STDARG_H
+#cmakedefine HAVE_STDARG_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#mesondefine HAVE_STDINT_H
+#cmakedefine HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#mesondefine HAVE_STDLIB_H
-
-/* Define to 1 if you have the `strdup' function. */
-#mesondefine HAVE_STRDUP
-
-/* Define to 1 if you have the `strerror' function. */
-#mesondefine HAVE_STRERROR
+#cmakedefine HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the `strftime' function. */
-#mesondefine HAVE_STRFTIME
+#cmakedefine HAVE_STRFTIME 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-#mesondefine HAVE_STRINGS_H
+#cmakedefine HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-#mesondefine HAVE_STRING_H
-
-/* Define to 1 if you have the `strndup' function. */
-#mesondefine HAVE_STRNDUP
+#cmakedefine HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
-#mesondefine HAVE_SYS_DIR_H
+#cmakedefine HAVE_SYS_DIR_H 1
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
-#mesondefine HAVE_SYS_MMAN_H
+#cmakedefine HAVE_SYS_MMAN_H 1
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
    */
-#mesondefine HAVE_SYS_NDIR_H
+#cmakedefine HAVE_SYS_NDIR_H 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
-#mesondefine HAVE_SYS_SELECT_H
+#cmakedefine HAVE_SYS_SELECT_H 1
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
-#mesondefine HAVE_SYS_SOCKET_H
+#cmakedefine HAVE_SYS_SOCKET_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#mesondefine HAVE_SYS_STAT_H
+#cmakedefine HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/timeb.h> header file. */
-#mesondefine HAVE_SYS_TIMEB_H
+#cmakedefine HAVE_SYS_TIMEB_H 1
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-#mesondefine HAVE_SYS_TIME_H
+#cmakedefine HAVE_SYS_TIME_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#mesondefine HAVE_SYS_TYPES_H
+#cmakedefine HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the `time' function. */
-#mesondefine HAVE_TIME
+#cmakedefine HAVE_TIME 1
 
 /* Define to 1 if you have the <time.h> header file. */
-#mesondefine HAVE_TIME_H
+#cmakedefine HAVE_TIME_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#mesondefine HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H 1
 
 /* Whether va_copy() is available */
-#mesondefine HAVE_VA_COPY
+#cmakedefine HAVE_VA_COPY 1
 
 /* Define to 1 if you have the `vfprintf' function. */
-#mesondefine HAVE_VFPRINTF
+#cmakedefine HAVE_VFPRINTF 1
 
 /* Define to 1 if you have the `vsnprintf' function. */
-#mesondefine HAVE_VSNPRINTF
+#cmakedefine HAVE_VSNPRINTF 1
 
 /* Define to 1 if you have the `vsprintf' function. */
-#mesondefine HAVE_VSPRINTF
+#cmakedefine HAVE_VSPRINTF 1
 
 /* Define to 1 if you have the <zlib.h> header file. */
-#mesondefine HAVE_ZLIB_H
-
-/* Define to 1 if you have the `_stat' function. */
-#mesondefine HAVE__STAT
+#cmakedefine HAVE_ZLIB_H 1
 
 /* Whether __va_copy() is available */
-#mesondefine HAVE___VA_COPY
+#cmakedefine HAVE___VA_COPY 1
 
 /* Define as const if the declaration of iconv() needs const. */
-#mesondefine ICONV_CONST
+#define ICONV_CONST @ICONV_CONST@
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries. */
-#mesondefine LT_OBJDIR
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#cmakedefine LT_OBJDIR "@LT_OBJDIR@"
 
 /* Name of package */
-#mesondefine PACKAGE
+#define PACKAGE "@PACKAGE@"
 
 /* Define to the address where bug reports for this package should be sent. */
-#mesondefine PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT "@PACKAGE_BUGREPORT@"
 
 /* Define to the full name of this package. */
-#mesondefine PACKAGE_NAME
+#define PACKAGE_NAME "@PACKAGE_NAME@"
 
 /* Define to the full name and version of this package. */
-#mesondefine PACKAGE_STRING
+#define PACKAGE_STRING "@PACKAGE_STRING@"
 
 /* Define to the one symbol short name of this package. */
-#mesondefine PACKAGE_TARNAME
+#define PACKAGE_TARNAME "@PACKAGE_TARNAME@"
 
 /* Define to the home page for this package. */
-#mesondefine PACKAGE_URL
+#define PACKAGE_URL "@PACKAGE_URL@"
 
 /* Define to the version of this package. */
-#mesondefine PACKAGE_VERSION
+#define PACKAGE_VERSION "@PACKAGE_VERSION@"
 
 /* Type cast for the send() function 2nd arg */
-#mesondefine SEND_ARG2_CAST
+#cmakedefine SEND_ARG2_CAST @SEND_ARG2_CAST@
 
 /* Define to 1 if you have the ANSI C header files. */
-#mesondefine STDC_HEADERS
+#cmakedefine STDC_HEADERS 1
 
 /* Support for IPv6 */
-#mesondefine SUPPORT_IP6
+#cmakedefine SUPPORT_IP6 1
 
 /* Define if va_list is an array type */
-#mesondefine VA_LIST_IS_ARRAY
+#cmakedefine VA_LIST_IS_ARRAY 1
 
 /* Version number of package */
-#mesondefine VERSION
+#cmakedefine VERSION "@VERSION@"
 
 /* Determine what socket length (socklen_t) data type is */
-#mesondefine XML_SOCKLEN_T
+#cmakedefine XML_SOCKLEN_T @XML_SOCKLEN_T@
 
 /* Define for Solaris 2.5.1 so the uint32_t typedef from <sys/synch.h>,
    <pthread.h>, or <semaphore.h> is not used. If the typedef were allowed, the
    #define below would cause a syntax error. */
-#mesondefine _UINT32_T
-
-/* Using the Win32 Socket implementation */
-#mesondefine _WINSOCKAPI_
+#cmakedefine _UINT32_T @_UINT32_T@
 
 /* ss_family is not defined here, use __ss_family instead */
-#mesondefine ss_family
+#cmakedefine ss_family @ss_family@
 
 /* Define to the type of an unsigned integer type of width exactly 32 bits if
    such a type exists and the standard includes do not define it. */
-#mesondefine uint32_t
+#cmakedefine uint32_t @uint32_t@
