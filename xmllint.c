@@ -165,6 +165,7 @@ static int xinclude = 0;
 static int dtdattrs = 0;
 static int loaddtd = 0;
 static xmllintReturnCode progresult = XMLLINT_RETURN_OK;
+static int quiet = 0;
 static int timing = 0;
 static int generate = 0;
 static int dropdtd = 0;
@@ -1665,7 +1666,9 @@ testSAX(const char *filename) {
 	                              (void *)user_data);
 	if (repeat == 0) {
 	    if (ret == 0) {
-		fprintf(stderr, "%s validates\n", filename);
+	        if (!quiet) {
+	            fprintf(stderr, "%s validates\n", filename);
+	        }
 	    } else if (ret > 0) {
 		fprintf(stderr, "%s fails to validate\n", filename);
 		progresult = XMLLINT_ERR_VALID;
@@ -1948,7 +1951,9 @@ static void streamFile(char *filename) {
 		fprintf(stderr, "%s fails to validate\n", filename);
 		progresult = XMLLINT_ERR_VALID;
 	    } else {
-		fprintf(stderr, "%s validates\n", filename);
+	        if (!quiet) {
+	            fprintf(stderr, "%s validates\n", filename);
+	        }
 	    }
 	}
 #endif
@@ -2208,7 +2213,7 @@ static void parseAndPrintFile(char *filename, xmlParserCtxtPtr rectxt) {
             if (res > 0) {
                 ctxt = htmlCreatePushParserCtxt(NULL, NULL,
                             chars, res, filename, XML_CHAR_ENCODING_NONE);
-                xmlCtxtUseOptions(ctxt, options);
+                htmlCtxtUseOptions(ctxt, options);
                 while ((res = fread(chars, 1, pushsize, f)) > 0) {
                     htmlParseChunk(ctxt, chars, res, 0);
                 }
@@ -2421,6 +2426,7 @@ static void parseAndPrintFile(char *filename, xmlParserCtxtPtr rectxt) {
 	dtd = xmlGetIntSubset(doc);
 	if (dtd != NULL) {
 	    xmlUnlinkNode((xmlNodePtr)dtd);
+            doc->intSubset = NULL;
 	    xmlFreeDtd(dtd);
 	}
     }
@@ -2840,7 +2846,9 @@ static void parseAndPrintFile(char *filename, xmlParserCtxtPtr rectxt) {
 #endif
 	ret = xmlSchematronValidateDoc(ctxt, doc);
 	if (ret == 0) {
-	    fprintf(stderr, "%s validates\n", filename);
+	    if (!quiet) {
+	        fprintf(stderr, "%s validates\n", filename);
+	    }
 	} else if (ret > 0) {
 	    fprintf(stderr, "%s fails to validate\n", filename);
 	    progresult = XMLLINT_ERR_VALID;
@@ -2868,7 +2876,9 @@ static void parseAndPrintFile(char *filename, xmlParserCtxtPtr rectxt) {
 	xmlRelaxNGSetValidErrors(ctxt, xmlGenericError, xmlGenericError, NULL);
 	ret = xmlRelaxNGValidateDoc(ctxt, doc);
 	if (ret == 0) {
-	    fprintf(stderr, "%s validates\n", filename);
+	    if (!quiet) {
+	        fprintf(stderr, "%s validates\n", filename);
+	    }
 	} else if (ret > 0) {
 	    fprintf(stderr, "%s fails to validate\n", filename);
 	    progresult = XMLLINT_ERR_VALID;
@@ -2893,7 +2903,9 @@ static void parseAndPrintFile(char *filename, xmlParserCtxtPtr rectxt) {
 	xmlSchemaSetValidErrors(ctxt, xmlGenericError, xmlGenericError, NULL);
 	ret = xmlSchemaValidateDoc(ctxt, doc);
 	if (ret == 0) {
-	    fprintf(stderr, "%s validates\n", filename);
+	    if (!quiet) {
+	        fprintf(stderr, "%s validates\n", filename);
+	    }
 	} else if (ret > 0) {
 	    fprintf(stderr, "%s fails to validate\n", filename);
 	    progresult = XMLLINT_ERR_VALID;
@@ -3010,6 +3022,7 @@ static void usage(FILE *f, const char *name) {
     fprintf(f, "\t--dtdvalid URL : do a posteriori validation against a given DTD\n");
     fprintf(f, "\t--dtdvalidfpi FPI : same but name the DTD with a Public Identifier\n");
 #endif /* LIBXML_VALID_ENABLED */
+    fprintf(f, "\t--quiet : be quiet when succeeded\n");
     fprintf(f, "\t--timing : print some timings\n");
     fprintf(f, "\t--output file or -o file: save to a given file\n");
     fprintf(f, "\t--repeat : repeat 100 times, for timing or profiling\n");
@@ -3244,6 +3257,9 @@ main(int argc, char **argv) {
 	else if ((!strcmp(argv[i], "-insert")) ||
 	         (!strcmp(argv[i], "--insert")))
 	    insert++;
+	else if ((!strcmp(argv[i], "-quiet")) ||
+	         (!strcmp(argv[i], "--quiet")))
+	    quiet++;
 	else if ((!strcmp(argv[i], "-timing")) ||
 	         (!strcmp(argv[i], "--timing")))
 	    timing++;
