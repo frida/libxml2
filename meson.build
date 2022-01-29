@@ -127,7 +127,16 @@ endif
 
 math_lib = cc.find_library('m', required: false)
 
-iconv_lib = cc.find_library('iconv', required : false)
+iconv_dep = []
+have_iconv = cc.has_function('iconv_open')
+if not have_iconv
+  iconv_dep = dependency('libiconv', required : false)
+  have_iconv = iconv_dep.found()
+endif
+if not have_iconv
+  iconv_dep = cc.find_library('iconv', required : false)
+  have_iconv = iconv_dep.found()
+endif
 
 lzma_dep = dependency('liblzma', required: false)
 if lzma_dep.found()
@@ -147,7 +156,7 @@ if zlib_dep.found()
   cdata.set('HAVE_LIBZ', 1)
 endif
 
-core_deps = [math_lib, iconv_lib, dl_lib, lzma_dep, thread_dep, zlib_dep]
+core_deps = [math_lib, iconv_dep, dl_lib, lzma_dep, thread_dep, zlib_dep]
 
 readline_deps = []
 
@@ -217,7 +226,7 @@ withcdata.set10('WITH_DOCB', true)
 withcdata.set10('WITH_XPATH', true)
 withcdata.set10('WITH_XPTR', true)
 withcdata.set10('WITH_XINCLUDE', true)
-withcdata.set10('WITH_ICONV', iconv_lib.found())
+withcdata.set10('WITH_ICONV', have_iconv)
 withcdata.set10('WITH_ICU', false)
 withcdata.set10('WITH_ISO8859X', true)
 withcdata.set10('WITH_DEBUG', true)
