@@ -328,6 +328,8 @@ pkg.generate(filebase : 'libxml-2.0',
 	     libraries_private : core_deps,
 	     subdirs : ['libxml2'])
 
+meson.override_dependency('libxml-2.0', xml2lib_dep)
+
 executable('xmllint', 'xmllint.c',
 	   dependencies : [xml2lib_dep] + readline_deps,
 	   install : true)
