@@ -156,7 +156,13 @@ if zlib_dep.found()
   cdata.set('HAVE_LIBZ', 1)
 endif
 
-core_deps = [math_lib, iconv_dep, dl_lib, lzma_dep, thread_dep, zlib_dep]
+if host_machine.system() == 'qnx'
+  socket_dep = cc.find_library('socket')
+else
+  socket_dep = []
+endif
+
+core_deps = [math_lib, iconv_dep, dl_lib, lzma_dep, thread_dep, zlib_dep, socket_dep]
 
 readline_deps = []
 
