@@ -9,6 +9,11 @@ cdata.set('PACKAGE_STRING', '@0@ @1@'.format(meson.project_name(), meson.project
 
 cc = meson.get_compiler('c')
 
+# Suppress all compiler warnings when we're a subproject.
+if meson.is_subproject() and cc.get_argument_syntax() != 'msvc'
+  add_project_arguments('-w', language : 'c')
+endif
+
 have_ipv6 = cc.compiles('''#include <sys/types.h>
 #include <sys/socket.h>
 
