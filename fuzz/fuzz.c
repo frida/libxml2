@@ -90,7 +90,7 @@ xmlFuzzDataCleanup(void) {
  * Read an integer from the fuzz data.
  */
 int
-xmlFuzzReadInt() {
+xmlFuzzReadInt(void) {
     int ret;
 
     if (fuzzData.remaining < sizeof(int))
@@ -185,6 +185,7 @@ xmlFuzzReadString(size_t *size) {
         return(out);
     }
 
+    *size = 0;
     return(NULL);
 }
 

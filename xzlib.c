@@ -11,14 +11,9 @@
 #ifdef LIBXML_LZMA_ENABLED
 
 #include <string.h>
-#ifdef HAVE_ERRNO_H
+#include <stdlib.h>
 #include <errno.h>
-#endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -28,9 +23,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
 #ifdef LIBXML_ZLIB_ENABLED
 #include <zlib.h>
 #endif
@@ -38,7 +30,7 @@
 #include <lzma.h>
 #endif
 
-#include "xzlib.h"
+#include "private/xzlib.h"
 #include <libxml/xmlmemory.h>
 
 /* values for xz_state how */
@@ -389,6 +381,10 @@ xz_head(xz_statep state)
     int flags;
     unsigned len;
 
+    /* Avoid unused variable warning if features are disabled. */
+    (void) flags;
+    (void) len;
+
     /* allocate read buffers and inflate memory */
     if (state->size == 0) {
         /* allocate buffers */
@@ -535,6 +531,10 @@ xz_decomp(xz_statep state)
     lzma_stream *strm = &(state->strm);
 
     lzma_action action = LZMA_RUN;
+
+    /* Avoid unused variable warning if features are disabled. */
+    (void) crc;
+    (void) len;
 
     /* fill output buffer up to end of deflate stream */
     had = strm->avail_out;

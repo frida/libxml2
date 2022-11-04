@@ -1,6 +1,11 @@
-#!/usr/bin/python -u
+#!/usr/bin/env python
 import libxml2
-import libxml2mod
+
+try:
+    import libxml2mod
+except ModuleNotFoundError:
+    from libxmlmods import libxml2mod
+
 import sys
 
 def error(msg, data):

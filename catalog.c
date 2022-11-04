@@ -16,9 +16,8 @@
 #include "libxml.h"
 
 #ifdef LIBXML_CATALOG_ENABLED
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
+#include <stdlib.h>
+#include <string.h>
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -28,10 +27,6 @@
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#include <string.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/hash.h>
 #include <libxml/uri.h>
@@ -41,7 +36,8 @@
 #include <libxml/threads.h>
 #include <libxml/globals.h>
 
-#include "buf.h"
+#include "private/buf.h"
+#include "private/error.h"
 
 #define MAX_DELEGATE	50
 #define MAX_CATAL_DEPTH	50
@@ -70,24 +66,18 @@
 #define XML_URN_PUBID "urn:publicid:"
 #define XML_CATAL_BREAK ((xmlChar *) -1)
 #ifndef XML_XML_DEFAULT_CATALOG
-#define XML_XML_DEFAULT_CATALOG "file:///etc/xml/catalog"
+#define XML_XML_DEFAULT_CATALOG "file://" SYSCONFDIR "/xml/catalog"
 #endif
 #ifndef XML_SGML_DEFAULT_CATALOG
-#define XML_SGML_DEFAULT_CATALOG "file:///etc/sgml/catalog"
+#define XML_SGML_DEFAULT_CATALOG "file://" SYSCONFDIR "/sgml/catalog"
 #endif
 
 #if defined(_WIN32) && defined(_MSC_VER)
 #undef XML_XML_DEFAULT_CATALOG
-static char XML_XML_DEFAULT_CATALOG[256] = "file:///etc/xml/catalog";
-#if defined(_WIN32_WCE)
-/* Windows CE don't have a A variant */
-#define GetModuleHandleA GetModuleHandle
-#define GetModuleFileNameA GetModuleFileName
-#else
+static char XML_XML_DEFAULT_CATALOG[256] = "file://" SYSCONFDIR "/xml/catalog";
 #if !defined(_WINDOWS_)
 void* __stdcall GetModuleHandleA(const char*);
 unsigned long __stdcall GetModuleFileNameA(void*, char*, unsigned long);
-#endif
 #endif
 #endif
 
@@ -899,11 +889,7 @@ xmlParseCatalogFile(const char *filename) {
 
     ctxt = xmlNewParserCtxt();
     if (ctxt == NULL) {
-#ifdef LIBXML_SAX1_ENABLED
-	if (xmlDefaultSAXHandler.error != NULL) {
-	    xmlDefaultSAXHandler.error(NULL, "out of memory\n");
-	}
-#endif
+        xmlCatalogErrMemory("allocating parser context");
 	return(NULL);
     }
 
@@ -915,6 +901,7 @@ xmlParseCatalogFile(const char *filename) {
 
     inputStream = xmlNewInputStream(ctxt);
     if (inputStream == NULL) {
+	xmlFreeParserInputBuffer(buf);
 	xmlFreeParserCtxt(ctxt);
 	return(NULL);
     }
@@ -2184,7 +2171,6 @@ xmlParseSGMLCatalogPubid(const xmlChar *cur, xmlChar **id) {
     int len = 0;
     int size = 50;
     xmlChar stop;
-    int count = 0;
 
     *id = NULL;
 
@@ -2197,7 +2183,7 @@ xmlParseSGMLCatalogPubid(const xmlChar *cur, xmlChar **id) {
     } else {
 	stop = ' ';
     }
-    buf = (xmlChar *) xmlMallocAtomic(size * sizeof(xmlChar));
+    buf = (xmlChar *) xmlMallocAtomic(size);
     if (buf == NULL) {
         xmlCatalogErrMemory("allocating public ID");
 	return(NULL);
@@ -2209,7 +2195,7 @@ xmlParseSGMLCatalogPubid(const xmlChar *cur, xmlChar **id) {
 	    break;
 	if (len + 1 >= size) {
 	    size *= 2;
-	    tmp = (xmlChar *) xmlRealloc(buf, size * sizeof(xmlChar));
+	    tmp = (xmlChar *) xmlRealloc(buf, size);
 	    if (tmp == NULL) {
 		xmlCatalogErrMemory("allocating public ID");
 		xmlFree(buf);
@@ -2218,7 +2204,6 @@ xmlParseSGMLCatalogPubid(const xmlChar *cur, xmlChar **id) {
 	    buf = tmp;
 	}
 	buf[len++] = *cur;
-	count++;
 	NEXT;
     }
     buf[len] = 0;
@@ -2358,6 +2343,7 @@ xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar *value,
 	    }
 	    if (!IS_BLANK_CH(*cur)) {
 		/* error */
+		xmlFree(name);
 		break;
 	    }
 	    SKIP_BLANKS;
@@ -3823,6 +3809,4 @@ xmlCatalogGetPublic(const xmlChar *pubID) {
     return(NULL);
 }
 
-#define bottom_catalog
-#include "elfgcchack.h"
 #endif /* LIBXML_CATALOG_ENABLED */

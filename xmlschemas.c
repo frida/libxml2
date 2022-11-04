@@ -76,6 +76,9 @@
 #include <libxml/xmlreader.h>
 #endif
 
+#include "private/error.h"
+#include "private/string.h"
+
 /* #define DEBUG 1 */
 
 /* #define DEBUG_CONTENT 1 */
@@ -1342,6 +1345,9 @@ xmlSchemaFormatQNameNs(xmlChar **buf, xmlNsPtr ns, const xmlChar *localName)
 static const xmlChar *
 xmlSchemaGetComponentName(xmlSchemaBasicItemPtr item)
 {
+    if (item == NULL) {
+        return (NULL);
+    }
     switch (item->type) {
 	case XML_SCHEMA_TYPE_ELEMENT:
 	    return (((xmlSchemaElementPtr) item)->name);
@@ -1397,6 +1403,9 @@ xmlSchemaGetQNameRefTargetNs(void *ref)
 static const xmlChar *
 xmlSchemaGetComponentTargetNs(xmlSchemaBasicItemPtr item)
 {
+    if (item == NULL) {
+        return (NULL);
+    }
     switch (item->type) {
 	case XML_SCHEMA_TYPE_ELEMENT:
 	    return (((xmlSchemaElementPtr) item)->targetNamespace);
@@ -5893,7 +5902,7 @@ xmlSchemaPValAttrNodeQNameValue(xmlSchemaParserCtxtPtr ctxt,
 
     if (!strchr((char *) value, ':')) {
 	ns = xmlSearchNs(attr->doc, attr->parent, NULL);
-	if (ns)
+	if (ns && ns->href && ns->href[0])
 	    *uri = xmlDictLookup(ctxt->dict, ns->href, -1);
 	else if (schema->flags & XML_SCHEMAS_INCLUDING_CONVERT_NS) {
 	    /* TODO: move XML_SCHEMAS_INCLUDING_CONVERT_NS to the
@@ -13339,8 +13348,19 @@ xmlSchemaResolveElementReferences(xmlSchemaElementPtr elemDecl,
 	    * declaration `resolved` to by the `actual value`
 	    * of the substitutionGroup [attribute], if present"
 	    */
-	    if (elemDecl->subtypes == NULL)
-		elemDecl->subtypes = substHead->subtypes;
+	    if (elemDecl->subtypes == NULL) {
+                if (substHead->subtypes == NULL) {
+                    /*
+                     * This can happen with self-referencing substitution
+                     * groups. The cycle will be detected later, but we have
+                     * to set subtypes to avoid null-pointer dereferences.
+                     */
+	            elemDecl->subtypes = xmlSchemaGetBuiltInType(
+                            XML_SCHEMAS_ANYTYPE);
+                } else {
+		    elemDecl->subtypes = substHead->subtypes;
+                }
+            }
 	}
     }
     /*
@@ -19940,7 +19960,8 @@ xmlSchemaCheckElemSubstGroup(xmlSchemaParserCtxtPtr ctxt,
 	    /*
 	    * The set of all {derivation method}s involved in the derivation
 	    */
-	    while ((type != NULL) && (type != headType)) {
+	    while ((type != NULL) && (type != headType) &&
+                   (type != type->baseType)) {
 		if ((WXS_IS_EXTENSION(type)) &&
 		    ((methSet & XML_SCHEMAS_TYPE_BLOCK_RESTRICTION) == 0))
 		    methSet |= XML_SCHEMAS_TYPE_BLOCK_EXTENSION;
@@ -21855,7 +21876,6 @@ xmlSchemaAssembleByXSI(xmlSchemaValidCtxtPtr vctxt)
 {
     const xmlChar *cur, *end;
     const xmlChar *nsname = NULL, *location;
-    int count = 0;
     int ret = 0;
     xmlSchemaAttrInfoPtr iattr;
 
@@ -21890,7 +21910,7 @@ xmlSchemaAssembleByXSI(xmlSchemaValidCtxtPtr vctxt)
 		end++;
 	    if (end == cur)
 		break;
-	    count++; /* TODO: Don't use the schema's dict. */
+	    /* TODO: Don't use the schema's dict. */
 	    nsname = xmlDictLookup(vctxt->schema->dict, cur, end - cur);
 	    cur = end;
 	}
@@ -21917,7 +21937,7 @@ xmlSchemaAssembleByXSI(xmlSchemaValidCtxtPtr vctxt)
 	    }
 	    break;
 	}
-	count++; /* TODO: Don't use the schema's dict. */
+	/* TODO: Don't use the schema's dict. */
 	location = xmlDictLookup(vctxt->schema->dict, cur, end - cur);
 	cur = end;
 	ret = xmlSchemaAssembleByLocation(vctxt, vctxt->schema,
@@ -24628,6 +24648,7 @@ xmlSchemaValidateQName(xmlSchemaValidCtxtPtr vctxt,
 		       int valNeeded)
 {
     int ret;
+    xmlChar *stripped;
     const xmlChar *nsName;
     xmlChar *local, *prefix = NULL;
 
@@ -24644,7 +24665,10 @@ xmlSchemaValidateQName(xmlSchemaValidCtxtPtr vctxt,
     * NOTE: xmlSplitQName2 will always return a duplicated
     * strings.
     */
-    local = xmlSplitQName2(value, &prefix);
+    /* TODO: Export and use xmlSchemaStrip instead */
+    stripped = xmlSchemaCollapseString(value);
+    local = xmlSplitQName2(stripped ? stripped : value, &prefix);
+    xmlFree(stripped);
     if (local == NULL)
 	local = xmlStrdup(value);
     /*
@@ -26457,13 +26481,15 @@ default_psvi:
 	    normValue = xmlSchemaNormalizeValue(inode->typeDef,
 		inode->decl->value);
 	    if (normValue != NULL) {
-		textChild = xmlNewText(BAD_CAST normValue);
+		textChild = xmlNewDocText(inode->node->doc,
+                        BAD_CAST normValue);
 		xmlFree(normValue);
 	    } else
-		textChild = xmlNewText(inode->decl->value);
+		textChild = xmlNewDocText(inode->node->doc,
+                        inode->decl->value);
 	    if (textChild == NULL) {
 		VERROR_INT("xmlSchemaValidatorPopElem",
-		    "calling xmlNewText()");
+		    "calling xmlNewDocText()");
 		goto internal_error;
 	    } else
 		xmlAddChild(inode->node, textChild);
@@ -27809,17 +27835,6 @@ xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt)
 	} while (cur != NULL);
 	vctxt->aidcs = NULL;
     }
-    if (vctxt->idcMatcherCache != NULL) {
-	xmlSchemaIDCMatcherPtr matcher = vctxt->idcMatcherCache, tmp;
-
-	while (matcher) {
-	    tmp = matcher;
-	    matcher = matcher->nextCached;
-	    xmlSchemaIDCFreeMatcherList(tmp);
-	}
-	vctxt->idcMatcherCache = NULL;
-    }
-
 
     if (vctxt->idcNodes != NULL) {
 	int i;
@@ -27885,6 +27900,21 @@ xmlSchemaClearValidCtxt(xmlSchemaValidCtxtPtr vctxt)
     if (vctxt->filename != NULL) {
         xmlFree(vctxt->filename);
 	vctxt->filename = NULL;
+    }
+
+    /*
+     * Note that some cleanup functions can move items to the cache,
+     * so the cache shouldn't be freed too early.
+     */
+    if (vctxt->idcMatcherCache != NULL) {
+	xmlSchemaIDCMatcherPtr matcher = vctxt->idcMatcherCache, tmp;
+
+	while (matcher) {
+	    tmp = matcher;
+	    matcher = matcher->nextCached;
+	    xmlSchemaIDCFreeMatcherList(tmp);
+	}
+	vctxt->idcMatcherCache = NULL;
     }
 }
 
@@ -28135,10 +28165,6 @@ xmlSchemaVDocWalk(xmlSchemaValidCtxtPtr vctxt)
 	/* VAL TODO: Error code? */
 	VERROR(1, NULL, "The document has no document element");
 	return (1);
-    }
-    for (node = valRoot->next; node != NULL; node = node->next) {
-        if (node->type == XML_ELEMENT_NODE)
-            VERROR(1, NULL, "The document has more than one top element");
     }
     vctxt->depth = -1;
     vctxt->validationRoot = valRoot;
@@ -29051,7 +29077,6 @@ xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt,
                         xmlSAXHandlerPtr sax, void *user_data)
 {
     xmlSchemaSAXPlugPtr plug = NULL;
-    xmlSAXHandlerPtr old_sax = NULL;
     xmlParserCtxtPtr pctxt = NULL;
     xmlParserInputPtr inputStream = NULL;
     int ret;
@@ -29062,12 +29087,9 @@ xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt,
     /*
      * prepare the parser
      */
-    pctxt = xmlNewParserCtxt();
+    pctxt = xmlNewSAXParserCtxt(sax, user_data);
     if (pctxt == NULL)
         return (-1);
-    old_sax = pctxt->sax;
-    pctxt->sax = sax;
-    pctxt->userData = user_data;
 #if 0
     if (options)
         xmlCtxtUseOptions(pctxt, options);
@@ -29113,7 +29135,6 @@ done:
     }
     /* cleanup */
     if (pctxt != NULL) {
-	pctxt->sax = old_sax;
 	xmlFreeParserCtxt(pctxt);
     }
     return (ret);
@@ -29168,6 +29189,4 @@ xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt)
     return (ctxt->parserCtxt);
 }
 
-#define bottom_xmlschemas
-#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */
