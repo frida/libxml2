@@ -15,8 +15,20 @@
 extern "C" {
 #endif
 
-#if defined(LIBXML_HTML_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
+#if __GNUC__ * 100 + __GNUC_MINOR__ >= 207 || defined(__clang__)
+  #define ATTRIBUTE_UNUSED __attribute__((unused))
+#else
+  #define ATTRIBUTE_UNUSED
+#endif
+
+#if defined(LIBXML_HTML_ENABLED)
   #define HAVE_HTML_FUZZER
+#endif
+#if 1
+  #define HAVE_LINT_FUZZER
+#endif
+#if defined(LIBXML_READER_ENABLED)
+  #define HAVE_READER_FUZZER
 #endif
 #if defined(LIBXML_REGEXP_ENABLED)
   #define HAVE_REGEXP_FUZZER
@@ -27,14 +39,28 @@ extern "C" {
 #if 1
   #define HAVE_URI_FUZZER
 #endif
-#if defined(LIBXML_OUTPUT_ENABLED) && \
-    defined(LIBXML_READER_ENABLED) && \
-    defined(LIBXML_XINCLUDE_ENABLED)
+#if defined(LIBXML_VALID_ENABLED)
+  #define HAVE_VALID_FUZZER
+#endif
+#if defined(LIBXML_XINCLUDE_ENABLED)
+  #define HAVE_XINCLUDE_FUZZER
+#endif
+#if 1
   #define HAVE_XML_FUZZER
 #endif
-#if defined(LIBXML_XPATH_ENABLED)
+#if defined(LIBXML_XPTR_ENABLED)
   #define HAVE_XPATH_FUZZER
 #endif
+
+#define XML_FUZZ_PROB_ONE (1u << 16)
+
+typedef size_t
+(*xmlFuzzMutator)(char *data, size_t size, size_t maxSize);
+
+typedef struct {
+    unsigned size;
+    unsigned mutateProb;
+} xmlFuzzChunkDesc;
 
 int
 LLVMFuzzerInitialize(int *argc, char ***argv);
@@ -42,9 +68,33 @@ LLVMFuzzerInitialize(int *argc, char ***argv);
 int
 LLVMFuzzerTestOneInput(const char *data, size_t size);
 
+size_t
+LLVMFuzzerMutate(char *data, size_t size, size_t maxSize);
+
+size_t
+LLVMFuzzerCustomMutator(char *data, size_t size, size_t maxSize,
+                        unsigned seed);
+
 void
-xmlFuzzErrorFunc(void *ctx ATTRIBUTE_UNUSED, const char *msg ATTRIBUTE_UNUSED,
-                 ...);
+xmlFuzzErrorFunc(void *ctx, const char *msg, ...);
+
+void
+xmlFuzzSErrorFunc(void *ctx, const xmlError *error);
+
+void
+xmlFuzzMemSetup(void);
+
+void
+xmlFuzzInjectFailure(size_t failurePos);
+
+int
+xmlFuzzMallocFailed(void);
+
+void
+xmlFuzzResetFailure(void);
+
+void
+xmlFuzzCheckFailureReport(const char *func, int oomReport, int ioReport);
 
 void
 xmlFuzzDataInit(const char *data, size_t size);
@@ -52,8 +102,14 @@ xmlFuzzDataInit(const char *data, size_t size);
 void
 xmlFuzzDataCleanup(void);
 
-int
-xmlFuzzReadInt(void);
+void
+xmlFuzzWriteInt(FILE *out, size_t v, int size);
+
+size_t
+xmlFuzzReadInt(int size);
+
+size_t
+xmlFuzzBytesRemaining(void);
 
 const char *
 xmlFuzzReadRemaining(size_t *size);
@@ -73,15 +129,30 @@ xmlFuzzMainUrl(void);
 const char *
 xmlFuzzMainEntity(size_t *size);
 
-xmlParserInputPtr
-xmlFuzzEntityLoader(const char *URL, const char *ID, xmlParserCtxtPtr ctxt);
+const char *
+xmlFuzzSecondaryUrl(void);
 
-size_t
-xmlFuzzExtractStrings(const char *data, size_t size, char **strings,
-                      size_t numStrings);
+const char *
+xmlFuzzSecondaryEntity(size_t *size);
+
+xmlParserErrors
+xmlFuzzResourceLoader(void *data, const char *URL, const char *ID,
+                      xmlResourceType type, xmlParserInputFlags flags,
+                      xmlParserInputPtr *out);
 
 char *
 xmlSlurpFile(const char *path, size_t *size);
+
+int
+xmlFuzzOutputWrite(void *ctxt, const char *buffer, int len);
+
+int
+xmlFuzzOutputClose(void *ctxt);
+
+size_t
+xmlFuzzMutateChunks(const xmlFuzzChunkDesc *chunks,
+                    char *data, size_t size, size_t maxSize, unsigned seed,
+                    xmlFuzzMutator mutator);
 
 #ifdef __cplusplus
 }

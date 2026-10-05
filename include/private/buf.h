@@ -1,48 +1,45 @@
 #ifndef XML_BUF_H_PRIVATE__
 #define XML_BUF_H_PRIVATE__
 
+#include <libxml/parser.h>
 #include <libxml/tree.h>
 
-xmlBufPtr xmlBufCreate(void);
-xmlBufPtr xmlBufCreateSize(size_t size);
-xmlBufPtr xmlBufCreateStatic(void *mem, size_t size);
+XML_HIDDEN xmlBuf *
+xmlBufCreate(size_t size);
+XML_HIDDEN xmlBuf *
+xmlBufCreateMem(const xmlChar *mem, size_t size, int isStatic);
+XML_HIDDEN void
+xmlBufFree(xmlBuf *buf);
 
-int xmlBufSetAllocationScheme(xmlBufPtr buf,
-                              xmlBufferAllocationScheme scheme);
-int xmlBufGetAllocationScheme(xmlBufPtr buf);
+XML_HIDDEN void
+xmlBufEmpty(xmlBuf *buf);
 
-void xmlBufFree(xmlBufPtr buf);
-void xmlBufEmpty(xmlBufPtr buf);
+XML_HIDDEN int
+xmlBufGrow(xmlBuf *buf, size_t len);
 
-/* size_t xmlBufShrink(xmlBufPtr buf, size_t len); */
-int xmlBufGrow(xmlBufPtr buf, int len);
-int xmlBufResize(xmlBufPtr buf, size_t len);
+XML_HIDDEN int
+xmlBufAdd(xmlBuf *buf, const xmlChar *str, size_t len);
+XML_HIDDEN int
+xmlBufCat(xmlBuf *buf, const xmlChar *str);
 
-int xmlBufAdd(xmlBufPtr buf, const xmlChar *str, int len);
-int xmlBufCat(xmlBufPtr buf, const xmlChar *str);
-int xmlBufCCat(xmlBufPtr buf, const char *str);
-int xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar *string);
+XML_HIDDEN size_t
+xmlBufAvail(xmlBuf *buf);
+XML_HIDDEN int
+xmlBufIsEmpty(xmlBuf *buf);
+XML_HIDDEN int
+xmlBufAddLen(xmlBuf *buf, size_t len);
 
-size_t xmlBufAvail(const xmlBufPtr buf);
-size_t xmlBufLength(const xmlBufPtr buf);
-/* size_t xmlBufUse(const xmlBufPtr buf); */
-int xmlBufIsEmpty(const xmlBufPtr buf);
-int xmlBufAddLen(xmlBufPtr buf, size_t len);
+XML_HIDDEN xmlChar *
+xmlBufDetach(xmlBuf *buf);
 
-/* const xmlChar * xmlBufContent(const xmlBuf *buf); */
-/* const xmlChar * xmlBufEnd(xmlBufPtr buf); */
+XML_HIDDEN xmlBuf *
+xmlBufFromBuffer(xmlBuffer *buffer);
+XML_HIDDEN int
+xmlBufBackToBuffer(xmlBuf *buf, xmlBuffer *ret);
 
-xmlChar * xmlBufDetach(xmlBufPtr buf);
-
-size_t xmlBufDump(FILE *file, xmlBufPtr buf);
-
-xmlBufPtr xmlBufFromBuffer(xmlBufferPtr buffer);
-xmlBufferPtr xmlBufBackToBuffer(xmlBufPtr buf);
-int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer);
-
-int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input);
-size_t xmlBufGetInputBase(xmlBufPtr buf, xmlParserInputPtr input);
-int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input,
-                          size_t base, size_t cur);
+XML_HIDDEN int
+xmlBufResetInput(xmlBuf *buf, xmlParserInput *input);
+XML_HIDDEN int
+xmlBufUpdateInput(xmlBuf *buf, xmlParserInput *input, size_t pos);
 
 #endif /* XML_BUF_H_PRIVATE__ */
