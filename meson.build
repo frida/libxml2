@@ -393,7 +393,14 @@ endif
 
 ### iconv
 if want_iconv
-    xml_deps += dependency('iconv')
+    iconv_dep = dependency('iconv', required: false)
+    if not iconv_dep.found()
+        iconv_dep = dependency('libiconv', required: get_option('iconv'))
+    endif
+    want_iconv = iconv_dep.found()
+    if want_iconv
+        xml_deps += iconv_dep
+    endif
 endif
 
 subdir('include/libxml')
