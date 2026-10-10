@@ -550,7 +550,7 @@ xmlIOErr(int err)
 #ifdef EADDRINUSE
         case EADDRINUSE: code = XML_IO_EADDRINUSE; break;
 #endif
-#ifdef EALREADY
+#if defined(EALREADY) && (!defined(EBUSY) || EALREADY != EBUSY)
         case EALREADY: code = XML_IO_EALREADY; break;
 #endif
 #ifdef EAFNOSUPPORT
